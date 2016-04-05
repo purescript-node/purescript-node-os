@@ -2,6 +2,10 @@
   "name": "purescript-node-os",
   "version": "1.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Thimoteus/purescript-node-os.git"
+  },
   "moduleType": [
     "node"
   ],
