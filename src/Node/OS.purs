@@ -22,7 +22,7 @@ import Prelude
 import Data.Array ((!!))
 import Data.Maybe (fromMaybe)
 import Data.StrMap (StrMap)
-import Data.Time (Milliseconds, Seconds)
+import Data.Time.Duration (Milliseconds, Seconds)
 
 import Control.Bind ((=<<))
 import Control.Monad.Eff (Eff)

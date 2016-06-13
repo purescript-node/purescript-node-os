@@ -16,7 +16,7 @@
     "output"
   ],
   "dependencies": {
-    "purescript-maps": "^0.5.7",
-    "purescript-datetime": "^0.9.2"
+    "purescript-maps": "^1.0.0",
+    "purescript-datetime": "^1.0.0"
   }
 }
