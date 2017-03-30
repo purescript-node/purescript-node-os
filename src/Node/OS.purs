@@ -24,8 +24,7 @@ import Data.Maybe (fromMaybe)
 import Data.StrMap (StrMap)
 import Data.Time.Duration (Milliseconds, Seconds)
 
-import Control.Bind ((=<<))
-import Control.Monad.Eff (Eff)
+import Control.Monad.Eff (Eff, kind Effect)
 
 type NetworkInterface = { address :: String
                         , netmask :: String
@@ -42,7 +41,7 @@ type CPU = { model :: String
                       , idle :: Milliseconds
                       , irq :: Milliseconds } }
 
-foreign import data OS :: !
+foreign import data OS :: Effect 
 
 foreign import eol :: Char
 
