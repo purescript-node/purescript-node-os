@@ -16,7 +16,11 @@
     "output"
   ],
   "dependencies": {
-    "purescript-maps": "^1.0.0",
-    "purescript-datetime": "^1.0.0"
+    "purescript-prelude": "^3.0.0",
+    "purescript-maps": "^3.0.0",
+    "purescript-datetime": "^3.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0"
   }
 }
