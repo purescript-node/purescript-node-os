@@ -1,0 +1,34 @@
+{
+  "name": "purescript-node-os",
+  "description": "bindings to node's os module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "pulp test",
+    "clean": "rimraf output .psa-stash",
+    "build": "pulp build -- --censor-lib --strict --stash",
+    "repl": "pulp psci"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thimoteus/purescript-node-os.git"
+  },
+  "keywords": [
+    "purescript",
+    "node",
+    "node-os"
+  ],
+  "author": "thimoteus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Thimoteus/purescript-node-os/issues"
+  },
+  "homepage": "https://github.com/Thimoteus/purescript-node-os#readme",
+  "dependencies": {
+    "purescript": "^0.11.6",
+    "purescript-psa": "^0.5.1",
+    "rimraf": "^2.6.1",
+    "pulp": "^11.0.2"
+  }
+}
