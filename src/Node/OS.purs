@@ -5,23 +5,24 @@ module Node.OS
   , cpus
   , Endianness(..), endianness
   , freemem
-  , loadavg
   , homedir
   , hostname
+  , loadavg
+  , networkInterfaces
   , Platform(..), platform
   , release
   , tmpdir
   , totalmem
   , ostype
   , uptime
-  , networkInterfaces
+  , userInfo
   ) where
 
 import Prelude
 
 import Data.Array ((!!))
-import Data.Maybe (fromMaybe)
-import Data.StrMap (StrMap)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.StrMap (StrMap, update)
 import Data.Time.Duration (Milliseconds, Seconds)
 
 import Control.Monad.Eff (Eff, kind Effect)
@@ -41,46 +42,12 @@ type CPU = { model :: String
                       , idle :: Milliseconds
                       , irq :: Milliseconds } }
 
-foreign import data OS :: Effect 
-
-foreign import eol :: Char
-
-foreign import archImpl :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import cpus :: forall eff. Eff ( os :: OS | eff ) (Array CPU)
-
-foreign import endiannessImpl :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import freemem :: forall eff. Eff ( os :: OS | eff ) Number
-
-foreign import homedir :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import hostname :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import loadavgImpl :: forall eff. Eff ( os :: OS | eff ) (Array Number)
-
-foreign import platformImpl :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import release :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import tmpdir :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import totalmem :: forall eff. Eff ( os :: OS | eff ) Number
-
-foreign import ostype :: forall eff. Eff ( os :: OS | eff ) String
-
-foreign import uptime :: forall eff. Eff ( os :: OS | eff ) Seconds
-
-foreign import networkInterfaces :: forall eff. Eff ( os :: OS | eff ) (StrMap (Array NetworkInterface))
+foreign import data OS :: Effect
 
 loadavg :: forall eff. Eff ( os :: OS | eff ) { one :: Number, five :: Number, fifteen :: Number }
 loadavg = pure <<< fromMaybe {one: 0.0, five: 0.0, fifteen: 0.0} <<< extract =<< loadavgImpl
   where
-  extract xs = do
-    one <- xs !! 0
-    five <- xs !! 1
-    fifteen <- xs !! 2
-    pure {one, five, fifteen}
+  extract xs = {one: _, five: _, fifteen: _} <$> xs !! 0 <*> xs !! 1 <*> xs !! 2
 
 data Arch = X64 | ARM | IA32 | UnknownArch
 
@@ -140,3 +107,39 @@ platform = do
            "freebsd" -> FreeBSD
            "sunos" -> SunOS
            _ -> UnknownPlatform
+
+type UserInfo =
+  { uid :: Int
+  , gid :: Int
+  , username :: String
+  , homedir :: String
+  , shell :: Maybe String
+  }
+
+userInfo :: forall eff. {encoding :: String} -> Eff ( os :: OS | eff ) UserInfo
+userInfo = userInfoImpl (flip update "shell") Nothing Just
+
+foreign import eol :: Char
+foreign import archImpl :: forall eff. Eff ( os :: OS | eff ) String
+foreign import cpus :: forall eff. Eff ( os :: OS | eff ) (Array CPU)
+foreign import endiannessImpl :: forall eff. Eff ( os :: OS | eff ) String
+foreign import freemem :: forall eff. Eff ( os :: OS | eff ) Number
+foreign import homedir :: forall eff. Eff ( os :: OS | eff ) String
+foreign import hostname :: forall eff. Eff ( os :: OS | eff ) String
+foreign import loadavgImpl :: forall eff. Eff ( os :: OS | eff ) (Array Number)
+foreign import platformImpl :: forall eff. Eff ( os :: OS | eff ) String
+foreign import release :: forall eff. Eff ( os :: OS | eff ) String
+foreign import tmpdir :: forall eff. Eff ( os :: OS | eff ) String
+foreign import totalmem :: forall eff. Eff ( os :: OS | eff ) Number
+foreign import ostype :: forall eff. Eff ( os :: OS | eff ) String
+foreign import uptime :: forall eff. Eff ( os :: OS | eff ) Seconds
+foreign import networkInterfaces
+  :: forall eff
+   . Eff ( os :: OS | eff ) (StrMap (Array NetworkInterface))
+foreign import userInfoImpl
+  :: forall a eff
+   . ((a -> Maybe a) -> StrMap a -> StrMap a)
+  -> Maybe a
+  -> (a -> Maybe a)
+  -> {encoding :: String}
+  -> Eff ( os :: OS | eff ) UserInfo

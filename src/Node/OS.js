@@ -1,6 +1,5 @@
 "use strict";
-
-// module Node.OS
+/* jshint node: true */
 
 var os = require('os');
 
@@ -19,3 +18,23 @@ exports.tmpdir = os.tmpdir;
 exports.totalmem = os.totalmem;
 exports.ostype = os.type;
 exports.uptime = os.uptime;
+exports.userInfoImpl = function (update) {
+  return function (Nothing) {
+    return function (Just) {
+      return function (opts) {
+        return function () {
+          var userInfo = os.userInfo(opts);
+          if (userInfo.shell === null) {
+            return update(function (x) {
+              return Just(Nothing);
+            })(userInfo);
+          } else {
+            return update(function (x) {
+              return Just(Just(x));
+            })(userInfo);
+          }
+        };
+      };
+    };
+  };
+};
