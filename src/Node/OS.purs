@@ -24,7 +24,7 @@ import Prelude
 import Data.Array ((!!))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds, Seconds)
-import Data.Map (Map, update) 
+import Foreign.Object (Object, update)  
 import Effect (Effect)
   
 type NetworkInterface = { address :: String
@@ -132,10 +132,10 @@ foreign import totalmem :: Effect Number
 foreign import ostype :: Effect String
 foreign import uptime :: Effect Seconds
 foreign import networkInterfaces
-  :: Effect (Map String (Array NetworkInterface))
-foreign import userInfoImpl
+  :: Effect (Object (Array NetworkInterface))
+foreign import userInfoImpl 
   :: forall a 
-   . ((a -> Maybe a) -> Map String a -> Map String a)
+   . ((a -> Maybe a) -> Object a -> Object a)
   -> Maybe a
   -> (a -> Maybe a)
   -> {encoding :: String}
