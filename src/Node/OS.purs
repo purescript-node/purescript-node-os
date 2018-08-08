@@ -1,5 +1,6 @@
 module Node.OS
-  ( OS, NetworkInterface, CPU
+  ( NetworkInterface
+  , CPU
   , eol
   , Arch(..), arch
   , cpus
@@ -19,21 +20,20 @@ module Node.OS
   ) where
 
 import Prelude
-
+     
 import Data.Array ((!!))
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.StrMap (StrMap, update)
 import Data.Time.Duration (Milliseconds, Seconds)
-
-import Control.Monad.Eff (Eff, kind Effect)
-
+import Foreign.Object (Object, update)  
+import Effect (Effect)
+  
 type NetworkInterface = { address :: String
                         , netmask :: String
                         , family :: String
                         , mac :: String
                         , internal :: Boolean
                         }
-
+ 
 type CPU = { model :: String
            , speed :: Int
            , times :: { user :: Milliseconds
@@ -42,9 +42,7 @@ type CPU = { model :: String
                       , idle :: Milliseconds
                       , irq :: Milliseconds } }
 
-foreign import data OS :: Effect
-
-loadavg :: forall eff. Eff ( os :: OS | eff ) { one :: Number, five :: Number, fifteen :: Number }
+loadavg :: Effect { one :: Number, five :: Number, fifteen :: Number }
 loadavg = pure <<< fromMaybe {one: 0.0, five: 0.0, fifteen: 0.0} <<< extract =<< loadavgImpl
   where
   extract xs = {one: _, five: _, fifteen: _} <$> xs !! 0 <*> xs !! 1 <*> xs !! 2
@@ -59,7 +57,7 @@ instance showArch :: Show Arch where
   show IA32 = "IA32"
   show UnknownArch = "UnknownArch"
 
-arch :: forall eff. Eff ( os :: OS | eff ) Arch
+arch :: Effect Arch
 arch = do
   a <- archImpl
   pure case a of
@@ -77,7 +75,7 @@ instance showEndianness :: Show Endianness where
   show BigEndian = "BigEndian"
   show UnknownEndian = "UnknownEndian"
 
-endianness :: forall eff. Eff ( os :: OS | eff ) Endianness
+endianness :: Effect Endianness
 endianness = do
   e <- endiannessImpl
   pure case e of
@@ -97,7 +95,7 @@ instance showPlatform :: Show Platform where
   show Win32 = "Win32"
   show UnknownPlatform = "UnknownPlatform"
 
-platform :: forall eff. Eff ( os :: OS | eff ) Platform
+platform :: Effect Platform
 platform = do
   p <- platformImpl
   pure case p of
@@ -107,7 +105,7 @@ platform = do
            "freebsd" -> FreeBSD
            "sunos" -> SunOS
            _ -> UnknownPlatform
-
+ 
 type UserInfo =
   { uid :: Int
   , gid :: Int
@@ -116,30 +114,29 @@ type UserInfo =
   , shell :: Maybe String
   }
 
-userInfo :: forall eff. {encoding :: String} -> Eff ( os :: OS | eff ) UserInfo
+userInfo :: {encoding :: String} -> Effect UserInfo
 userInfo = userInfoImpl (flip update "shell") Nothing Just
 
 foreign import eol :: Char
-foreign import archImpl :: forall eff. Eff ( os :: OS | eff ) String
-foreign import cpus :: forall eff. Eff ( os :: OS | eff ) (Array CPU)
-foreign import endiannessImpl :: forall eff. Eff ( os :: OS | eff ) String
-foreign import freemem :: forall eff. Eff ( os :: OS | eff ) Number
-foreign import homedir :: forall eff. Eff ( os :: OS | eff ) String
-foreign import hostname :: forall eff. Eff ( os :: OS | eff ) String
-foreign import loadavgImpl :: forall eff. Eff ( os :: OS | eff ) (Array Number)
-foreign import platformImpl :: forall eff. Eff ( os :: OS | eff ) String
-foreign import release :: forall eff. Eff ( os :: OS | eff ) String
-foreign import tmpdir :: forall eff. Eff ( os :: OS | eff ) String
-foreign import totalmem :: forall eff. Eff ( os :: OS | eff ) Number
-foreign import ostype :: forall eff. Eff ( os :: OS | eff ) String
-foreign import uptime :: forall eff. Eff ( os :: OS | eff ) Seconds
+foreign import archImpl :: Effect String
+foreign import cpus :: Effect (Array CPU)
+foreign import endiannessImpl :: Effect String
+foreign import freemem :: Effect Number
+foreign import homedir :: Effect String
+foreign import hostname :: Effect String
+foreign import loadavgImpl :: Effect (Array Number)
+foreign import platformImpl :: Effect String
+foreign import release :: Effect String
+foreign import tmpdir :: Effect String
+foreign import totalmem :: Effect Number
+foreign import ostype :: Effect String
+foreign import uptime :: Effect Seconds
 foreign import networkInterfaces
-  :: forall eff
-   . Eff ( os :: OS | eff ) (StrMap (Array NetworkInterface))
-foreign import userInfoImpl
-  :: forall a eff
-   . ((a -> Maybe a) -> StrMap a -> StrMap a)
+  :: Effect (Object (Array NetworkInterface))
+foreign import userInfoImpl 
+  :: forall a 
+   . ((a -> Maybe a) -> Object a -> Object a)
   -> Maybe a
   -> (a -> Maybe a)
   -> {encoding :: String}
-  -> Eff ( os :: OS | eff ) UserInfo
+  -> Effect UserInfo
