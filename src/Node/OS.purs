@@ -16,36 +16,47 @@ module Node.OS
   , totalmem
   , ostype
   , uptime
-  , userInfo
+  , userInfo, BufferEncoding(..)
   ) where
 
 import Prelude
-     
+
 import Data.Array ((!!))
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds, Seconds)
-import Foreign.Object (Object, update)  
 import Effect (Effect)
+import Foreign.Object (Object, update)
+import Node.Encoding (Encoding)
   
-type NetworkInterface = { address :: String
-                        , netmask :: String
-                        , family :: String
-                        , mac :: String
-                        , internal :: Boolean
-                        }
- 
-type CPU = { model :: String
-           , speed :: Int
-           , times :: { user :: Milliseconds
-                      , nice :: Milliseconds
-                      , sys :: Milliseconds
-                      , idle :: Milliseconds
-                      , irq :: Milliseconds } }
+type NetworkInterface =
+  { address :: String
+  , netmask :: String
+  , family :: String
+  , mac :: String
+  , internal :: Boolean
+  }
+
+type CPU =
+  { model :: String
+  , speed :: Int
+  , times ::
+    { user :: Milliseconds
+    , nice :: Milliseconds
+    , sys :: Milliseconds
+    , idle :: Milliseconds
+    , irq :: Milliseconds
+    }
+  }
 
 loadavg :: Effect { one :: Number, five :: Number, fifteen :: Number }
-loadavg = pure <<< fromMaybe {one: 0.0, five: 0.0, fifteen: 0.0} <<< extract =<< loadavgImpl
+loadavg = fromMaybe {one: 0.0, five: 0.0, fifteen: 0.0} <<< extract <$> loadavgImpl
   where
-  extract xs = {one: _, five: _, fifteen: _} <$> xs !! 0 <*> xs !! 1 <*> xs !! 2
+  extract xs = ado
+    one <- xs !! 0
+    five <- xs !! 1
+    fifteen <- xs !! 2
+    in {one, five, fifteen}
 
 data Arch = X64 | ARM | IA32 | UnknownArch
 
@@ -61,10 +72,10 @@ arch :: Effect Arch
 arch = do
   a <- archImpl
   pure case a of
-          "x64" -> X64
-          "arm" -> ARM
-          "ia32" -> IA32
-          _ -> UnknownArch
+    "x64" -> X64
+    "arm" -> ARM
+    "ia32" -> IA32
+    _ -> UnknownArch
 
 data Endianness = LittleEndian | BigEndian | UnknownEndian
 
@@ -79,33 +90,34 @@ endianness :: Effect Endianness
 endianness = do
   e <- endiannessImpl
   pure case e of
-           "BE" -> BigEndian
-           "LE" -> LittleEndian
-           _ -> UnknownEndian
+    "BE" -> BigEndian
+    "LE" -> LittleEndian
+    _ -> UnknownEndian
 
 data Platform = Darwin | FreeBSD | Linux | SunOS | Win32 | UnknownPlatform
 
 derive instance eqPlatform :: Eq Platform
 
 instance showPlatform :: Show Platform where
-  show Darwin = "Darwin"
-  show FreeBSD = "FreeBSD"
-  show Linux = "Linux"
-  show SunOS = "SunOS"
-  show Win32 = "Win32"
-  show UnknownPlatform = "UnknownPlatform"
+  show = case _ of
+    Darwin -> "Darwin"
+    FreeBSD -> "FreeBSD"
+    Linux -> "Linux"
+    SunOS -> "SunOS"
+    Win32 -> "Win32"
+    UnknownPlatform -> "UnknownPlatform"
 
 platform :: Effect Platform
 platform = do
   p <- platformImpl
   pure case p of
-           "linux" -> Linux
-           "darwin" -> Darwin
-           "win32" -> Win32
-           "freebsd" -> FreeBSD
-           "sunos" -> SunOS
-           _ -> UnknownPlatform
- 
+    "linux" -> Linux
+    "darwin" -> Darwin
+    "win32" -> Win32
+    "freebsd" -> FreeBSD
+    "sunos" -> SunOS
+    _ -> UnknownPlatform
+
 type UserInfo =
   { uid :: Int
   , gid :: Int
@@ -114,8 +126,14 @@ type UserInfo =
   , shell :: Maybe String
   }
 
-userInfo :: {encoding :: String} -> Effect UserInfo
-userInfo = userInfoImpl (flip update "shell") Nothing Just
+userInfo :: Either Encoding BufferEncoding -> Effect UserInfo
+userInfo enc = userInfoImpl (update <@> "shell") Nothing Just enc'
+  where
+  enc' = case enc of
+    Left e -> {encoding: show e}
+    _ -> {encoding: "buffer"}
+
+data BufferEncoding = BufferEncoding
 
 foreign import eol :: Char
 foreign import archImpl :: Effect String
@@ -131,12 +149,10 @@ foreign import tmpdir :: Effect String
 foreign import totalmem :: Effect Number
 foreign import ostype :: Effect String
 foreign import uptime :: Effect Seconds
-foreign import networkInterfaces
-  :: Effect (Object (Array NetworkInterface))
+foreign import networkInterfaces :: Effect (Object (Array NetworkInterface))
 foreign import userInfoImpl 
-  :: forall a 
-   . ((a -> Maybe a) -> Object a -> Object a)
-  -> Maybe a
-  -> (a -> Maybe a)
+  :: (∀ a. (a -> Maybe a) -> Object a -> Object a)
+  -> (∀ a. Maybe a)
+  -> (∀ a. a -> Maybe a)
   -> {encoding :: String}
   -> Effect UserInfo
