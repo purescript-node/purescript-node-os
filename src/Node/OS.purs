@@ -28,7 +28,7 @@ import Data.Time.Duration (Milliseconds, Seconds)
 import Effect (Effect)
 import Foreign.Object (Object, update)
 import Node.Encoding (Encoding)
-  
+
 type NetworkInterface =
   { address :: String
   , netmask :: String
@@ -150,7 +150,7 @@ foreign import totalmem :: Effect Number
 foreign import ostype :: Effect String
 foreign import uptime :: Effect Seconds
 foreign import networkInterfaces :: Effect (Object (Array NetworkInterface))
-foreign import userInfoImpl 
+foreign import userInfoImpl
   :: (∀ a. (a -> Maybe a) -> Object a -> Object a)
   -> (∀ a. Maybe a)
   -> (∀ a. a -> Maybe a)
