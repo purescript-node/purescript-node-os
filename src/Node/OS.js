@@ -1,7 +1,7 @@
 "use strict";
 /* jshint node: true */
 
-const os = require('os');
+import os from 'os';
 
 export const eol = os.EOL;
 export const archImpl = os.arch;
