@@ -1,24 +1,24 @@
 "use strict";
 /* jshint node: true */
 
-var os = require('os');
+const os = require('os');
 
-exports.eol = os.EOL;
-exports.archImpl = os.arch;
-exports.cpus = os.cpus;
-exports.endiannessImpl = os.endianness;
-exports.freemem = os.freemem;
-exports.homedir = os.homedir;
-exports.hostname = os.hostname;
-exports.loadavgImpl = os.loadavg;
-exports.networkInterfaces = os.networkInterfaces;
-exports.platformImpl = os.platform;
-exports.release = os.release;
-exports.tmpdir = os.tmpdir;
-exports.totalmem = os.totalmem;
-exports.ostype = os.type;
-exports.uptime = os.uptime;
-exports.userInfoImpl = function (update) {
+export const eol = os.EOL;
+export const archImpl = os.arch;
+export const cpus = os.cpus;
+export const endiannessImpl = os.endianness;
+export const freemem = os.freemem;
+export const homedir = os.homedir;
+export const hostname = os.hostname;
+export const loadavgImpl = os.loadavg;
+export const networkInterfaces = os.networkInterfaces;
+export const platformImpl = os.platform;
+export const release = os.release;
+export const tmpdir = os.tmpdir;
+export const totalmem = os.totalmem;
+export const ostype = os.type;
+export const uptime = os.uptime;
+export const userInfoImpl = function (update) {
   return function (Nothing) {
     return function (Just) {
       return function (opts) {
