@@ -64,6 +64,6 @@ jobs:
           spago test
 
       - name: Check Formatting
-        if: runner.os == Linux
+        if: runner.os == 'Linux'
         run: |
           purs-tidy check src test
