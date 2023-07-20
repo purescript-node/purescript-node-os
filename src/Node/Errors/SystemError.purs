@@ -4,6 +4,7 @@ module Node.Errors.SystemError
   , code
   , dest
   , errno
+  , getSystemErrorName
   , info
   , message
   , path
@@ -37,8 +38,13 @@ code = runFn2 getField "code"
 dest :: SystemError -> Maybe String
 dest = toMaybe <<< runFn2 getNullableField "dest"
 
+-- | Use `getSystemErrorName` to convert Int into a string name
 errno :: SystemError -> Int
 errno = runFn2 getField "errno"
+
+-- | Returns the string name for a numeric error code that comes from a Node.js API. 
+-- | The mapping between error codes and error names is platform-dependent. 
+foreign import getSystemErrorName :: Int -> String
 
 info :: SystemError -> Foreign
 info = runFn2 getField "info"
