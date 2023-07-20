@@ -3,3 +3,12 @@ let upstream =
         sha256:31bf177700801a6fc8de6109009ba953e94329a5bb835350bea16b7b7f8dc479
 
 in  upstream
+      with node-buffer.version = "v9.0.0"
+      with node-buffer.dependencies =
+        [ "arraybuffer-types"
+        , "effect"
+        , "maybe"
+        , "st"
+        , "unsafe-coerce"
+        , "nullable"
+        ]
