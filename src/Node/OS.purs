@@ -1,6 +1,5 @@
 module Node.OS
   ( eol
-  , availableParallelism
   , Arch(..)
   , arch
   , constants
@@ -63,8 +62,6 @@ import Unsafe.Coerce (unsafeCoerce)
 -- |  `\n` on POSIX
 -- | `\r\n` on Windows
 foreign import eol :: String
-
-foreign import availableParallelism :: Effect Int
 
 -- | Possible values are 'arm', 'arm64', 'ia32', 'mips', 'mipsel', 'ppc', 'ppc64', 's390', 
 -- | 's390x', 'x32', and 'x64'.

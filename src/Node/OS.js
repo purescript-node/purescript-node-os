@@ -1,6 +1,5 @@
 export { 
   EOL as eol, 
-  availableParallelism,
   arch as archImpl, 
   constants, 
   cpus, 
