@@ -18,6 +18,7 @@ module Node.OS
   , LoadAvg
   , loadavg
   , IpVersion(..)
+  , machine
   , NetworkInterface
   , networkInterfaces
   , release
