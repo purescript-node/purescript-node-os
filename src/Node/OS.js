@@ -1,5 +1,6 @@
 export { 
   EOL as eol, 
+  availableParallelism,
   arch as archImpl, 
   constants, 
   cpus, 
@@ -9,7 +10,8 @@ export {
   getPriority as getPriorityImpl, 
   homedir,
   hostname, 
-  loadavg as loadavgImpl, 
+  loadavg as loadavgImpl,
+  machine,
   networkInterfaces as networkInterfacesImpl, 
   // platform, -- platform is defined in `node-process` library
   release, 
