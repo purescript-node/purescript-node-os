@@ -1,5 +1,6 @@
 module Node.Errors.SystemError
   ( SystemError
+  , toError
   , address
   , code
   , dest
@@ -17,10 +18,14 @@ import Prelude
 import Data.Function.Uncurried (Fn2, runFn2)
 import Data.Maybe (Maybe)
 import Data.Nullable (Nullable, toMaybe)
+import Effect.Exception (Error)
 import Foreign (Foreign)
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import data SystemError :: Type
+
+toError :: SystemError -> Error
+toError = unsafeCoerce
 
 instance Show SystemError where
   show = unsafeCoerce
