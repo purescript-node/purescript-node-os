@@ -2,8 +2,8 @@
   "name": "purescript-node-os",
   "private": true,
   "scripts": {
-    "build": "spago-legacy build",
-    "test": "spago-legacy test",
+    "build": "spago build --strict --pedantic-packages",
+    "test": "spago test --pedantic-packages",
     "lint": "oxlint --deny-warnings src",
     "format": "purs-tidy format-in-place src test && oxfmt --write \"src/**/*.js\"",
     "format:check": "purs-tidy check src test && oxfmt --check \"src/**/*.js\""
@@ -13,6 +13,6 @@
     "oxlint": "1.87.0",
     "purescript": "0.15.16",
     "purs-tidy": "0.11.1",
-    "spago-legacy": "0.21.0"
+    "spago": "1.0.4"
   }
 }
